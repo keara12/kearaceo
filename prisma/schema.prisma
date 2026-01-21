@@ -1,0 +1,21 @@
+// 1. This tells Prisma to generate the JavaScript client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// 2. This tells Prisma you are using SQLite and where the file is
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// 3. Your Customer model (the table)
+model Customer {
+  id               Int      @id @default(autoincrement())
+  customer_id      String   @unique
+  customer_name    String
+  customer_id_card String
+  phone_number     String
+  address          String?
+  createdAt        DateTime @default(now())
+}

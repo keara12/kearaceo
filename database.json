@@ -1,0 +1,442 @@
+{
+  "customers": [
+    {
+      "customer_id": "CRS000001",
+      "customer_name": "ណែម គារ៉ា",
+      "customer_id_card": "101232656",
+      "phone_number": "015342443",
+      "address": "ភូមិវះពោះ, ខ្វាវ, សំរោង, តាកែវ\t",
+      "currency_type": "1",
+      "loan_amount": 1000000,
+      "interest_rate": 4,
+      "loan_date": "2025-11-01",
+      "loan_term": 6,
+      "loan_type": "បើកអាជីវកម្ម",
+      "collateral": "សា",
+      "createdAt": "2026-01-21T04:31:26.615Z",
+      "repayment_schedule": [
+        {
+          "no": 1,
+          "date": "2025-11-16",
+          "beginning_balance": 1000000,
+          "pay_principal": 83333,
+          "pay_interest": 20000,
+          "total_pay": 103333,
+          "ending_balance": 916667,
+          "status": "Paid"
+        },
+        {
+          "no": 2,
+          "date": "2025-12-01",
+          "beginning_balance": 916667,
+          "pay_principal": 83333,
+          "pay_interest": 18333,
+          "total_pay": 101666,
+          "ending_balance": 833334,
+          "status": "Unpaid"
+        },
+        {
+          "no": 3,
+          "date": "2025-12-16",
+          "beginning_balance": 833334,
+          "pay_principal": 83333,
+          "pay_interest": 16667,
+          "total_pay": 100000,
+          "ending_balance": 750001,
+          "status": "Unpaid"
+        },
+        {
+          "no": 4,
+          "date": "2025-12-31",
+          "beginning_balance": 750001,
+          "pay_principal": 83333,
+          "pay_interest": 15000,
+          "total_pay": 98333,
+          "ending_balance": 666668,
+          "status": "Unpaid"
+        },
+        {
+          "no": 5,
+          "date": "2026-01-15",
+          "beginning_balance": 666668,
+          "pay_principal": 83333,
+          "pay_interest": 13333,
+          "total_pay": 96666,
+          "ending_balance": 583335,
+          "status": "Paid"
+        },
+        {
+          "no": 6,
+          "date": "2026-01-30",
+          "beginning_balance": 583335,
+          "pay_principal": 83333,
+          "pay_interest": 11667,
+          "total_pay": 95000,
+          "ending_balance": 500002,
+          "status": "Unpaid"
+        },
+        {
+          "no": 7,
+          "date": "2026-02-14",
+          "beginning_balance": 500002,
+          "pay_principal": 83333,
+          "pay_interest": 10000,
+          "total_pay": 93333,
+          "ending_balance": 416669,
+          "status": "Unpaid"
+        },
+        {
+          "no": 8,
+          "date": "2026-03-01",
+          "beginning_balance": 416669,
+          "pay_principal": 83333,
+          "pay_interest": 8333,
+          "total_pay": 91666,
+          "ending_balance": 333336,
+          "status": "Unpaid"
+        },
+        {
+          "no": 9,
+          "date": "2026-03-16",
+          "beginning_balance": 333336,
+          "pay_principal": 83333,
+          "pay_interest": 6667,
+          "total_pay": 90000,
+          "ending_balance": 250003,
+          "status": "Unpaid"
+        },
+        {
+          "no": 10,
+          "date": "2026-03-31",
+          "beginning_balance": 250003,
+          "pay_principal": 83333,
+          "pay_interest": 5000,
+          "total_pay": 88333,
+          "ending_balance": 166670,
+          "status": "Unpaid"
+        },
+        {
+          "no": 11,
+          "date": "2026-04-15",
+          "beginning_balance": 166670,
+          "pay_principal": 83333,
+          "pay_interest": 3333,
+          "total_pay": 86666,
+          "ending_balance": 83337,
+          "status": "Unpaid"
+        },
+        {
+          "no": 12,
+          "date": "2026-04-30",
+          "beginning_balance": 83337,
+          "pay_principal": 83333,
+          "pay_interest": 1667,
+          "total_pay": 85000,
+          "ending_balance": 0,
+          "status": "Unpaid"
+        }
+      ],
+      "status": "Approved",
+      "approved_at": "2026-01-21T04:41:44.096Z",
+      "is_approved": true,
+      "approved_date": "2026-01-21T04:44:08.586Z"
+    },
+    {
+      "customer_id": "CRS000002",
+      "customer_name": "ប៉ែន អូនទូច",
+      "customer_id_card": "7878956489",
+      "phone_number": "014587963",
+      "address": "ភូមិកាប់នឹម, ខ្វាវ, សំរោង, តាកែវ\t",
+      "currency_type": "2",
+      "loan_amount": 10000,
+      "interest_rate": 1,
+      "loan_date": "2025-11-01",
+      "loan_term": 12,
+      "loan_type": "ផ្ទាល់ខ្លួន ",
+      "collateral": "ហ្ហ",
+      "createdAt": "2026-01-21T06:18:45.632Z",
+      "repayment_schedule": [
+        {
+          "no": 1,
+          "date": "2025-12-01",
+          "beginning_balance": 10000,
+          "pay_principal": 833,
+          "pay_interest": 100,
+          "total_pay": 933,
+          "ending_balance": 9167,
+          "status": "Unpaid"
+        },
+        {
+          "no": 2,
+          "date": "2026-01-01",
+          "beginning_balance": 9167,
+          "pay_principal": 833,
+          "pay_interest": 92,
+          "total_pay": 925,
+          "ending_balance": 8333,
+          "status": "Paid"
+        },
+        {
+          "no": 3,
+          "date": "2026-02-01",
+          "beginning_balance": 8333,
+          "pay_principal": 833,
+          "pay_interest": 83,
+          "total_pay": 917,
+          "ending_balance": 7500,
+          "status": "Unpaid"
+        },
+        {
+          "no": 4,
+          "date": "2026-03-01",
+          "beginning_balance": 7500,
+          "pay_principal": 833,
+          "pay_interest": 75,
+          "total_pay": 908,
+          "ending_balance": 6667,
+          "status": "Unpaid"
+        },
+        {
+          "no": 5,
+          "date": "2026-04-01",
+          "beginning_balance": 6667,
+          "pay_principal": 833,
+          "pay_interest": 67,
+          "total_pay": 900,
+          "ending_balance": 5833,
+          "status": "Unpaid"
+        },
+        {
+          "no": 6,
+          "date": "2026-05-01",
+          "beginning_balance": 5833,
+          "pay_principal": 833,
+          "pay_interest": 58,
+          "total_pay": 892,
+          "ending_balance": 5000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 7,
+          "date": "2026-06-01",
+          "beginning_balance": 5000,
+          "pay_principal": 833,
+          "pay_interest": 50,
+          "total_pay": 883,
+          "ending_balance": 4167,
+          "status": "Unpaid"
+        },
+        {
+          "no": 8,
+          "date": "2026-07-01",
+          "beginning_balance": 4167,
+          "pay_principal": 833,
+          "pay_interest": 42,
+          "total_pay": 875,
+          "ending_balance": 3333,
+          "status": "Unpaid"
+        },
+        {
+          "no": 9,
+          "date": "2026-08-01",
+          "beginning_balance": 3333,
+          "pay_principal": 833,
+          "pay_interest": 33,
+          "total_pay": 867,
+          "ending_balance": 2500,
+          "status": "Unpaid"
+        },
+        {
+          "no": 10,
+          "date": "2026-09-01",
+          "beginning_balance": 2500,
+          "pay_principal": 833,
+          "pay_interest": 25,
+          "total_pay": 858,
+          "ending_balance": 1667,
+          "status": "Unpaid"
+        },
+        {
+          "no": 11,
+          "date": "2026-10-01",
+          "beginning_balance": 1667,
+          "pay_principal": 833,
+          "pay_interest": 17,
+          "total_pay": 850,
+          "ending_balance": 833,
+          "status": "Unpaid"
+        },
+        {
+          "no": 12,
+          "date": "2026-11-01",
+          "beginning_balance": 833,
+          "pay_principal": 833,
+          "pay_interest": 8,
+          "total_pay": 842,
+          "ending_balance": 0,
+          "status": "Unpaid"
+        }
+      ],
+      "is_approved": true,
+      "approved_date": "2026-01-21T06:19:12.948Z"
+    },
+    {
+      "customer_id": "CRS000003",
+      "customer_name": "ង៉ែត សម្រស់",
+      "customer_id_card": "789546333",
+      "phone_number": "01625455414",
+      "address": "ភូមិដំណាក់់ដង្កោ, ក្ដុលតាហែន, បវេល, បាត់ដំបង",
+      "currency_type": "3",
+      "loan_amount": 1000000,
+      "interest_rate": 2,
+      "loan_date": "2025-12-01",
+      "loan_term": 5,
+      "loan_type": "បើកអាជីវកម្ម",
+      "collateral": "123",
+      "createdAt": "2026-01-21T06:52:31.382Z",
+      "repayment_schedule": [
+        {
+          "no": 1,
+          "date": "2025-12-16",
+          "beginning_balance": 1000000,
+          "pay_principal": 100000,
+          "pay_interest": 10000,
+          "total_pay": 110000,
+          "ending_balance": 900000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 2,
+          "date": "2025-12-31",
+          "beginning_balance": 900000,
+          "pay_principal": 100000,
+          "pay_interest": 9000,
+          "total_pay": 109000,
+          "ending_balance": 800000,
+          "status": "Paid"
+        },
+        {
+          "no": 3,
+          "date": "2026-01-15",
+          "beginning_balance": 800000,
+          "pay_principal": 100000,
+          "pay_interest": 8000,
+          "total_pay": 108000,
+          "ending_balance": 700000,
+          "status": "Paid"
+        },
+        {
+          "no": 4,
+          "date": "2026-01-30",
+          "beginning_balance": 700000,
+          "pay_principal": 100000,
+          "pay_interest": 7000,
+          "total_pay": 107000,
+          "ending_balance": 600000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 5,
+          "date": "2026-02-14",
+          "beginning_balance": 600000,
+          "pay_principal": 100000,
+          "pay_interest": 6000,
+          "total_pay": 106000,
+          "ending_balance": 500000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 6,
+          "date": "2026-03-01",
+          "beginning_balance": 500000,
+          "pay_principal": 100000,
+          "pay_interest": 5000,
+          "total_pay": 105000,
+          "ending_balance": 400000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 7,
+          "date": "2026-03-16",
+          "beginning_balance": 400000,
+          "pay_principal": 100000,
+          "pay_interest": 4000,
+          "total_pay": 104000,
+          "ending_balance": 300000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 8,
+          "date": "2026-03-31",
+          "beginning_balance": 300000,
+          "pay_principal": 100000,
+          "pay_interest": 3000,
+          "total_pay": 103000,
+          "ending_balance": 200000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 9,
+          "date": "2026-04-15",
+          "beginning_balance": 200000,
+          "pay_principal": 100000,
+          "pay_interest": 2000,
+          "total_pay": 102000,
+          "ending_balance": 100000,
+          "status": "Unpaid"
+        },
+        {
+          "no": 10,
+          "date": "2026-04-30",
+          "beginning_balance": 100000,
+          "pay_principal": 100000,
+          "pay_interest": 1000,
+          "total_pay": 101000,
+          "ending_balance": 0,
+          "status": "Unpaid"
+        }
+      ]
+    }
+  ],
+  "customer_late_history": [
+    {
+      "payment_id": "PAY-1768980669483",
+      "customer_id": "CRS000003",
+      "customer_name": "ង៉ែត សម្រស់",
+      "late": 21,
+      "scheduled_date": "2025-12-31",
+      "paid_at": "2026-01-21T07:31:09.483Z",
+      "principal": 100000,
+      "interest": 9000,
+      "penalty": 14000,
+      "total_paid": 123000,
+      "currency": "3"
+    },
+    {
+      "payment_id": "PAY-1768984755138",
+      "customer_id": "CRS000002",
+      "customer_name": "ប៉ែន អូនទូច",
+      "late": 20,
+      "scheduled_date": "2026-01-01",
+      "paid_at": "2026-01-21T08:39:15.138Z",
+      "principal": 833,
+      "interest": 92,
+      "penalty": 67,
+      "total_paid": 992,
+      "currency": "2"
+    },
+    {
+      "payment_id": "PAY-1768984762970",
+      "customer_id": "CRS000001",
+      "customer_name": "ណែម គារ៉ា",
+      "late": 66,
+      "scheduled_date": "2025-11-16",
+      "paid_at": "2026-01-21T08:39:22.970Z",
+      "principal": 83333,
+      "interest": 20000,
+      "penalty": 88000,
+      "total_paid": 191333,
+      "currency": "1"
+    }
+  ]
+}
