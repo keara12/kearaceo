@@ -1,120 +1,111 @@
-import fs from 'fs';
+import { sql } from '@vercel/postgres';
 import { error, fail } from '@sveltejs/kit';
-import path from 'path';
-
-const DB_PATH = path.resolve('./database.json');
 
 /** @type {import('./$types').PageServerLoad} */
-export function load({ params }) {
-    if (!fs.existsSync(DB_PATH)) throw error(404, 'រកមិនឃើញឯកសារទិន្នន័យ');
-    
-    const content = fs.readFileSync(DB_PATH, 'utf-8');
-    const dbData = JSON.parse(content || '[]');
+export async function load({ params }) {
+    const customerId = params.id;
 
-    const allCustomers = Array.isArray(dbData) ? dbData : (dbData.customers || []);
-    const customer = allCustomers.find(c => c.customer_id === params.id);
+    try {
+        // ១. ទាញទិន្នន័យអតិថិជនពី Table customers
+        const { rows: customers } = await sql`
+            SELECT * FROM customers WHERE customer_id = ${customerId} LIMIT 1
+        `;
 
-    if (!customer) throw error(404, 'រកមិនឃើញអតិថិជន');
+        if (customers.length === 0) throw error(404, 'រកមិនឃើញអតិថិជន');
+        const customer = customers[0];
 
-    const oldStatusMap = {};
-    if (customer.repayment_schedule) {
-        customer.repayment_schedule.forEach(item => {
+        // ២. ទាញយកតារាងបង់ប្រាក់ពី Table repayment_schedules (បើមាន)
+        const { rows: existingSchedule } = await sql`
+            SELECT * FROM repayment_schedules 
+            WHERE customer_id = ${customerId} 
+            ORDER BY no ASC
+        `;
+
+        const oldStatusMap = {};
+        existingSchedule.forEach(item => {
             oldStatusMap[item.no] = item.status;
         });
-    }
 
-    const totalPrincipal = parseFloat(customer.loan_amount) || 0; 
-    const totalMonths = parseInt(customer.loan_term) || 0;
-    const monthlyRate = (parseFloat(customer.interest_rate) || 0) / 100;
-    const principalPerMonth = totalPrincipal / totalMonths;
-    
-    let startDate = new Date(customer.loan_date);
-    let newSchedule = [];
-    let currentBalance = totalPrincipal;
-
-    for (let i = 1; i <= totalMonths; i++) {
-        const interestThisMonth = currentBalance * monthlyRate;
-        const remainingBalance = currentBalance - principalPerMonth;
+        // ៣. គណនាតារាងបង់ប្រាក់ (Logic ដើមរបស់អ្នក)
+        const totalPrincipal = parseFloat(customer.loan_amount) || 0; 
+        const totalMonths = parseInt(customer.loan_term) || 0;
+        const monthlyRate = (parseFloat(customer.interest_rate) || 0) / 100;
+        const principalPerMonth = totalPrincipal / totalMonths;
         
-        let payDate = new Date(startDate);
-        payDate.setMonth(startDate.getMonth() + i);
+        let startDate = new Date(customer.loan_date);
+        let newSchedule = [];
+        let currentBalance = totalPrincipal;
 
-        newSchedule.push({
-            no: i,
-            date: payDate.toISOString().split('T')[0],
-            beginning_balance: Math.round(currentBalance),
-            pay_principal: Math.round(principalPerMonth),
-            pay_interest: Math.round(interestThisMonth),
-            total_pay: Math.round(principalPerMonth + interestThisMonth),
-            ending_balance: Math.round(remainingBalance > 0 ? remainingBalance : 0),
-            status: oldStatusMap[i] || "Unpaid"
-        });
-        currentBalance = remainingBalance;
+        for (let i = 1; i <= totalMonths; i++) {
+            const interestThisMonth = currentBalance * monthlyRate;
+            const remainingBalance = currentBalance - principalPerMonth;
+            
+            let payDate = new Date(startDate);
+            payDate.setMonth(startDate.getMonth() + i);
+
+            newSchedule.push({
+                no: i,
+                due_date: payDate.toISOString().split('T')[0], // ប្តូរឈ្មោះឱ្យត្រូវតាម Table
+                beginning_balance: Math.round(currentBalance),
+                pay_principal: Math.round(principalPerMonth),
+                pay_interest: Math.round(interestThisMonth),
+                total_pay: Math.round(principalPerMonth + interestThisMonth),
+                ending_balance: Math.round(remainingBalance > 0 ? remainingBalance : 0),
+                status: oldStatusMap[i] || "Unpaid"
+            });
+            currentBalance = remainingBalance;
+        }
+
+        return { 
+            customer: {
+                ...customer,
+                repayment_schedule: newSchedule
+            } 
+        };
+    } catch (err) {
+        console.error("Database Error:", err);
+        throw error(500, "មានបញ្ហាក្នុងការទាញទិន្នន័យ");
     }
-
-    return { 
-        customer: {
-            ...customer,
-            repayment_schedule: newSchedule
-        } 
-    };
 }
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-    updateStatus: async ({ request, params }) => {
-        try {
-            const data = await request.formData();
-            const scheduleJSON = data.get('schedule');
-            if (!scheduleJSON) return fail(400);
-
-            const content = fs.readFileSync(DB_PATH, 'utf-8');
-            let dbData = JSON.parse(content || '{"customers":[]}');
-            let customers = Array.isArray(dbData) ? dbData : (dbData.customers || []);
-            let history = dbData.customer_late_history || [];
-
-            const index = customers.findIndex(c => c.customer_id === params.id);
-            if (index !== -1) {
-                customers[index].repayment_schedule = JSON.parse(scheduleJSON);
-                const finalDb = { customers, customer_late_history: history };
-                fs.writeFileSync(DB_PATH, JSON.stringify(finalDb, null, 2));
-                return { success: true };
-            }
-            return fail(404);
-        } catch (err) {
-            return fail(500);
-        }
-    },
-
-    // ✅ Action ថ្មីសម្រាប់ចុច Approve និងរក្សាទុកទិន្នន័យតារាងទាំងអស់
+    // ✅ Action សម្រាប់ចុច Approve និងរក្សាទុកតារាងបង់ប្រាក់ចូល Database
     approve: async ({ request, params }) => {
         try {
             const formData = await request.formData();
-            const fullScheduleJSON = formData.get('full_schedule'); // ទទួលទិន្នន័យតារាងពី Frontend
+            const fullScheduleJSON = formData.get('full_schedule'); 
 
             if (!fullScheduleJSON) return fail(400, { message: "No schedule data provided" });
+            const schedule = JSON.parse(fullScheduleJSON);
 
-            const content = fs.readFileSync(DB_PATH, 'utf-8');
-            let dbData = JSON.parse(content || '{"customers":[]}');
-            let customers = Array.isArray(dbData) ? dbData : (dbData.customers || []);
-            let history = dbData.customer_late_history || [];
+            // ១. លុបតារាងចាស់ចោលសិន (បើមាន) ដើម្បីកុំឱ្យជាន់គ្នា
+            await sql`DELETE FROM repayment_schedules WHERE customer_id = ${params.id}`;
 
-            const index = customers.findIndex(c => c.customer_id === params.id);
-
-            if (index !== -1) {
-                // ១. រក្សាទុកតារាងបង់ប្រាក់ទាំងអស់ចូលក្នុង Database
-                customers[index].repayment_schedule = JSON.parse(fullScheduleJSON);
-                
-                // ២. ប្តូរ Status ជាអ្នកដែលត្រូវបានអនុម័ត
-                customers[index].is_approved = true;
-                customers[index].approved_date = new Date().toISOString();
-
-                const finalDb = { customers, customer_late_history: history };
-                fs.writeFileSync(DB_PATH, JSON.stringify(finalDb, null, 2));
-                
-                return { success: true };
+            // ២. បញ្ចូលតារាងបង់ប្រាក់ថ្មីចូលទៅក្នុង Table repayment_schedules
+            // យើងប្រើ loop ដើម្បីបញ្ចូលម្ដងមួយជួរ
+            for (const item of schedule) {
+                await sql`
+                    INSERT INTO repayment_schedules (
+                        customer_id, no, due_date, beginning_balance, 
+                        pay_principal, pay_interest, total_pay, ending_balance, status
+                    ) VALUES (
+                        ${params.id}, ${item.no}, ${item.due_date || item.date}, 
+                        ${item.beginning_balance}, ${item.pay_principal}, 
+                        ${item.pay_interest}, ${item.total_pay}, ${item.ending_balance}, 
+                        ${item.status}
+                    )
+                `;
             }
-            return fail(404);
+
+            // ៣. ប្តូរ Status ក្នុង Table customers ជាអ្នកដែលត្រូវបានអនុម័ត
+            await sql`
+                UPDATE customers 
+                SET is_approved = true, approved_date = NOW() 
+                WHERE customer_id = ${params.id}
+            `;
+            
+            return { success: true };
         } catch (err) {
             console.error("Approve Error:", err);
             return fail(500);
