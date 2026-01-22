@@ -6,7 +6,7 @@ export async function load({ params }) {
     const customerId = params.id;
 
     try {
-        // ១. ទាញទិន្នន័យអតិថិជនពី Table customers
+        // ១. ទាញទិន្នន័យអតិថិជនពី Postgres
         const { rows: customers } = await sql`
             SELECT * FROM customers WHERE customer_id = ${customerId} LIMIT 1
         `;
@@ -14,7 +14,7 @@ export async function load({ params }) {
         if (customers.length === 0) throw error(404, 'រកមិនឃើញអតិថិជន');
         const customer = customers[0];
 
-        // ២. ទាញយកតារាងបង់ប្រាក់ពី Table repayment_schedules (បើមាន)
+        // ២. ទាញយកតារាងបង់ប្រាក់ដែលមានស្រាប់ក្នុង DB (ករណីធ្លាប់ Approve រួច)
         const { rows: existingSchedule } = await sql`
             SELECT * FROM repayment_schedules 
             WHERE customer_id = ${customerId} 
@@ -45,7 +45,8 @@ export async function load({ params }) {
 
             newSchedule.push({
                 no: i,
-                due_date: payDate.toISOString().split('T')[0], // ប្តូរឈ្មោះឱ្យត្រូវតាម Table
+                // បញ្ជាក់៖ ប្រើឈ្មោះ 'date' ឬ 'due_date' ឱ្យត្រូវតាម Frontend របស់អ្នក
+                date: payDate.toISOString().split('T')[0], 
                 beginning_balance: Math.round(currentBalance),
                 pay_principal: Math.round(principalPerMonth),
                 pay_interest: Math.round(interestThisMonth),
@@ -63,34 +64,33 @@ export async function load({ params }) {
             } 
         };
     } catch (err) {
-        console.error("Database Error:", err);
-        throw error(500, "មានបញ្ហាក្នុងការទាញទិន្នន័យ");
+        console.error("View Load Error:", err);
+        throw error(500, "មានបញ្ហាបច្ចេកទេសក្នុងការទាញទិន្នន័យ");
     }
 }
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-    // ✅ Action សម្រាប់ចុច Approve និងរក្សាទុកតារាងបង់ប្រាក់ចូល Database
+    // សកម្មភាពរក្សាទុកតារាងបង់ប្រាក់ចូលក្នុង Database
     approve: async ({ request, params }) => {
         try {
             const formData = await request.formData();
             const fullScheduleJSON = formData.get('full_schedule'); 
 
-            if (!fullScheduleJSON) return fail(400, { message: "No schedule data provided" });
+            if (!fullScheduleJSON) return fail(400, { message: "ខ្វះទិន្នន័យតារាងបង់ប្រាក់" });
             const schedule = JSON.parse(fullScheduleJSON);
 
-            // ១. លុបតារាងចាស់ចោលសិន (បើមាន) ដើម្បីកុំឱ្យជាន់គ្នា
+            // ១. លុបទិន្នន័យចាស់ក្នុង repayment_schedules (បើមាន)
             await sql`DELETE FROM repayment_schedules WHERE customer_id = ${params.id}`;
 
-            // ២. បញ្ចូលតារាងបង់ប្រាក់ថ្មីចូលទៅក្នុង Table repayment_schedules
-            // យើងប្រើ loop ដើម្បីបញ្ចូលម្ដងមួយជួរ
+            // ២. បញ្ចូលតារាងថ្មីម្ដងមួយជួរចូលទៅក្នុង Postgres
             for (const item of schedule) {
                 await sql`
                     INSERT INTO repayment_schedules (
                         customer_id, no, due_date, beginning_balance, 
                         pay_principal, pay_interest, total_pay, ending_balance, status
                     ) VALUES (
-                        ${params.id}, ${item.no}, ${item.due_date || item.date}, 
+                        ${params.id}, ${item.no}, ${item.date}, 
                         ${item.beginning_balance}, ${item.pay_principal}, 
                         ${item.pay_interest}, ${item.total_pay}, ${item.ending_balance}, 
                         ${item.status}
@@ -98,7 +98,7 @@ export const actions = {
                 `;
             }
 
-            // ៣. ប្តូរ Status ក្នុង Table customers ជាអ្នកដែលត្រូវបានអនុម័ត
+            // ៣. Update ស្ថានភាពអតិថិជនថាបាន Approve
             await sql`
                 UPDATE customers 
                 SET is_approved = true, approved_date = NOW() 
@@ -107,8 +107,8 @@ export const actions = {
             
             return { success: true };
         } catch (err) {
-            console.error("Approve Error:", err);
-            return fail(500);
+            console.error("Approve Action Error:", err);
+            return fail(500, { message: "ការរក្សាទុកបរាជ័យ" });
         }
     }
 };
