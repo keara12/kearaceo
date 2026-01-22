@@ -30,18 +30,15 @@
     if (!schedule || schedule.length === 0) return true;
 
     const today = new Date();
-    // កំណត់ម៉ោងឱ្យនៅ 00:00:00 ដើម្បីប្រៀបធៀបតែថ្ងៃខែឆ្នាំ
     today.setHours(0, 0, 0, 0);
 
     for (let row of schedule) {
-        const rowDate = new Date(row.date);
+        // ប្រសិនបើកាលបរិច្ឆេទក្នុង DB ជាអក្សរវែង យើងបំប្លែងវាឱ្យខ្លីដើម្បីប្រៀបធៀប
+        const rowDate = new Date(row.due_date || row.date);
         rowDate.setHours(0, 0, 0, 0);
 
-        // លក្ខខណ្ឌ៖ ពិនិត្យតែជួរណាដែល "ដល់ថ្ងៃត្រូវបង់" ឬ "ហួសថ្ងៃបង់" (ថ្ងៃបង់ <= ថ្ងៃនេះ)
         if (rowDate <= today) {
             const status = row.status ? row.status.toString().trim().toLowerCase() : "";
-            
-            // បើដល់ថ្ងៃត្រូវបង់ហើយ តែ status មិនមែន "paid" គឺឱ្យក្រហម (false)
             if (status !== "paid") {
                 return false; 
             }
@@ -225,7 +222,11 @@
                             <td class=""><span class="address-text" title={c.address}>{c.address}</span></td>
                             <td class="amount">{Number(c.loan_amount).toLocaleString()} ៛</td>
                             <td class="">{c.interest_rate}%</td>
-                            <td class="">{c.loan_date}</td>
+                            
+                            <td class="">
+                                {c.loan_date ? new Date(c.loan_date).toISOString().split('T')[0] : '---'}
+                            </td>
+
                             <td class="">{c.loan_term} ខែ</td>
                             <td>
                                 <span class="status-badge {c.loan_type === 'Daily' ? 'daily' : 'monthly'}">
@@ -253,8 +254,9 @@
 </div>
 
 <style>
+    /* រក្សាទុក Style ដើមរបស់អ្នកទាំងអស់ */
     .nav-link.active {
-        background-color: #1a3a8a; /* ពណ៌ខៀវដិត */
+        background-color: #1a3a8a;
         color: white;
         border-radius: 8px;
     }
@@ -264,10 +266,7 @@
         font-family: 'Kantumruy Pro', sans-serif;
         color: #1e293b;
     }
-
     .dashboard-container { display: flex; min-height: 100vh; flex-direction: column; }
-
-    /* --- Sidebar Style (Desktop) --- */
     .sidebar {
         width: 280px;
         background: #0f172a;
@@ -279,7 +278,6 @@
         height: 100vh;
         z-index: 100;
     }
-
     .sidebar-header {
         display: flex;
         align-items: center;
@@ -287,11 +285,9 @@
         padding: 0 25px 30px;
         border-bottom: 1px solid #ffffff1a;
     }
-
     .sidebar-header img { width: 45px; height: 45px; }
     .logo-text h1 { font-size: 18px; margin: 0; color: #38bdf8; }
     .logo-text span { font-size: 12px; opacity: 0.7; }
-
     .nav-menu { list-style: none; padding: 20px 15px; flex-grow: 1; }
     .nav-menu li { margin-bottom: 8px; }
     .nav-link {
@@ -303,23 +299,13 @@
         border-radius: 10px;
         transition: 0.3s;
     }
-    .nav-menu li.active .nav-link, .nav-link:hover {
+    .nav-link:hover {
         background: #38bdf8;
         color: white;
     }
-
     .sidebar-footer { padding: 20px; font-size: 11px; text-align: center; opacity: 0.5; }
-
-    /* --- Main Content --- */
     .main-content { margin-left: 280px; flex-grow: 1; padding: 20px; }
-
-    .header-bar {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 25px;
-    }
-
+    .header-bar { display: flex; flex-direction: column; gap: 15px; margin-bottom: 25px; }
     .time-badge {
         background: white;
         padding: 8px 15px;
@@ -329,15 +315,12 @@
         box-shadow: 0 2px 10px rgba(0,0,0,0.05);
         align-self: flex-start;
     }
-
-    /* --- Stats --- */
     .stats-container {
         display: grid;
         grid-template-columns: repeat(2, 1fr);
         gap: 15px;
         margin-bottom: 25px;
     }
-
     .stat-card {
         background: white;
         padding: 15px;
@@ -352,26 +335,16 @@
     .stat-card.green { border-color: #10b981; }
     .stat-card.orange { border-color: #f59e0b; }
     .stat-card.purple { border-color: #8b5cf6; }
-
     .stat-info p { margin: 0; font-size: 12px; color: #64748b; }
     .stat-info h3 { margin: 5px 0 0; font-size: 18px; }
     .stat-icon { font-size: 24px; opacity: 0.8; }
-
-    /* --- Table Card --- */
     .content-card {
         background: white;
         border-radius: 16px;
         padding: 15px;
         box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);
     }
-
-    .table-header {
-        display: flex;
-        flex-direction: column;
-        gap: 15px;
-        margin-bottom: 20px;
-    }
-
+    .table-header { display: flex; flex-direction: column; gap: 15px; margin-bottom: 20px; }
     .search-box { position: relative; width: 100%; }
     .search-box span { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); opacity: 0.4; }
     .search-box input {
@@ -381,15 +354,11 @@
         border-radius: 12px;
         box-sizing: border-box;
     }
-
     .filters { display: flex; flex-wrap: wrap; gap: 10px; }
     .date-input { flex: 1; min-width: 120px; display: flex; flex-direction: column; gap: 4px; }
     .date-input label { font-size: 11px; font-weight: 600; color: #94a3b8; }
     .date-input input { padding: 8px; border: 1px solid #e2e8f0; border-radius: 8px; font-size: 12px; }
-
     .btn-reset { padding: 8px 15px; background: #f1f5f9; border: none; border-radius: 8px; cursor: pointer; }
-
-    /* --- Table Styles --- */
     .table-responsive { overflow-x: auto; -webkit-overflow-scrolling: touch; }
     table { width: 100%; border-collapse: collapse; }
     th {
@@ -401,7 +370,6 @@
         white-space: nowrap;
     }
     td { padding: 12px; border-bottom: 1px solid #f1f5f9; font-size: 13px; }
-
     .id-badge { background: #f1f5f9; padding: 4px 6px; border-radius: 6px; font-weight: 600; font-size: 11px; }
     .name-box { font-weight: 600; padding: 4px 8px; border-radius: 6px; display: inline-block; font-size: 12px; }
     .paid { color: #0369a1; background: #e0f2fe; }
@@ -410,8 +378,6 @@
     .status-badge { padding: 3px 8px; border-radius: 20px; font-size: 10px; font-weight: 600; }
     .daily { background: #fef3c7; color: #92400e; }
     .monthly { background: #ede9fe; color: #5b21b6; }
-
-    /* --- Action Buttons --- */
     .action-btns { display: flex; gap: 5px; }
     .action-btns a, .action-btns button {
         width: 32px; height: 32px;
@@ -421,8 +387,6 @@
     .btn-view { background: #e0f2fe; color: #0284c7; }
     .btn-edit { background: #fef3c7; color: #d97706; }
     .btn-delete { background: #ffe4e6; color: #e11d48; }
-
-    /* --- Modal --- */
     .modal-overlay {
         position: fixed; top:0; left:0; width:100%; height:100%;
         background: rgba(15, 23, 42, 0.6);
@@ -433,8 +397,6 @@
         background: white; padding: 30px; border-radius: 20px;
         text-align: center; width: 100%; max-width: 400px;
     }
-
-    /* --- Desktop Layout Overrides --- */
     @media (min-width: 1024px) {
         .dashboard-container { flex-direction: row; }
         .header-bar { flex-direction: row; justify-content: space-between; align-items: center; }
@@ -445,8 +407,6 @@
         .stat-info h3 { font-size: 22px; }
         .stat-info p { font-size: 14px; }
     }
-
-    /* --- Tablet & Mobile Navigation --- */
     @media (max-width: 1023px) {
         .sidebar {
             width: 100%;
@@ -474,6 +434,5 @@
             font-size: 24px;
         }
         .main-content { margin-left: 0; padding-bottom: 90px; }
-        .hide-mobile { display: none; }
     }
 </style>
