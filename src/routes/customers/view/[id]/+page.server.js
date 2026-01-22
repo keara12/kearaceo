@@ -14,7 +14,7 @@ export async function load({ params }) {
         if (customers.length === 0) throw error(404, 'រកមិនឃើញអតិថិជន');
         const customer = customers[0];
 
-        // ២. ទាញយកតារាងបង់ប្រាក់ដែលមានស្រាប់ក្នុង DB (ករណីធ្លាប់ Approve រួច)
+        // ២. ទាញយកតារាងបង់ប្រាក់ដែលមានស្រាប់ក្នុង DB
         const { rows: existingSchedule } = await sql`
             SELECT * FROM repayment_schedules 
             WHERE customer_id = ${customerId} 
@@ -45,7 +45,7 @@ export async function load({ params }) {
 
             newSchedule.push({
                 no: i,
-                // បញ្ជាក់៖ ប្រើឈ្មោះ 'date' ឬ 'due_date' ឱ្យត្រូវតាម Frontend របស់អ្នក
+                // ✅ ប្តូរឈ្មោះពី due_date មកជា date វិញ ដើម្បីឱ្យត្រូវជាមួយ Frontend Svelte របស់អ្នក
                 date: payDate.toISOString().split('T')[0], 
                 beginning_balance: Math.round(currentBalance),
                 pay_principal: Math.round(principalPerMonth),
@@ -71,7 +71,6 @@ export async function load({ params }) {
 
 /** @type {import('./$types').Actions} */
 export const actions = {
-    // សកម្មភាពរក្សាទុកតារាងបង់ប្រាក់ចូលក្នុង Database
     approve: async ({ request, params }) => {
         try {
             const formData = await request.formData();
@@ -80,10 +79,10 @@ export const actions = {
             if (!fullScheduleJSON) return fail(400, { message: "ខ្វះទិន្នន័យតារាងបង់ប្រាក់" });
             const schedule = JSON.parse(fullScheduleJSON);
 
-            // ១. លុបទិន្នន័យចាស់ក្នុង repayment_schedules (បើមាន)
+            // ១. លុបទិន្នន័យចាស់ក្នុង repayment_schedules
             await sql`DELETE FROM repayment_schedules WHERE customer_id = ${params.id}`;
 
-            // ២. បញ្ចូលតារាងថ្មីម្ដងមួយជួរចូលទៅក្នុង Postgres
+            // ២. បញ្ចូលតារាងថ្មីម្ដងមួយជួរ
             for (const item of schedule) {
                 await sql`
                     INSERT INTO repayment_schedules (
@@ -98,7 +97,7 @@ export const actions = {
                 `;
             }
 
-            // ៣. Update ស្ថានភាពអតិថិជនថាបាន Approve
+            // ៣. Update ស្ថានភាពអតិថិជន
             await sql`
                 UPDATE customers 
                 SET is_approved = true, approved_date = NOW() 
